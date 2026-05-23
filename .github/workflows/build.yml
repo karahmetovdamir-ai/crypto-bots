@@ -31,6 +31,17 @@ jobs:
           touch app/.env 2>/dev/null || true
         fi
 
+    - name: Create Auto-Generated Debug Keystore
+      run: |
+        # Генерируем дефолтный ключ, который требует конфигурация проекта
+        mkdir -p ~/.android
+        keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+        # На всякий случай копируем его и в корень, и в папку app
+        cp ~/.android/debug.keystore .
+        if [ -d "app" ]; then
+          cp ~/.android/debug.keystore app/
+        fi
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -43,7 +54,6 @@ jobs:
         gradle-version: current
 
     - name: Build Debug APK
-      # Добавляем флаг headless для Java, чтобы KSP не падал в облаке
       run: gradle assembleDebug --no-daemon -Djava.awt.headless=true
 
     - name: Upload Finished APK
