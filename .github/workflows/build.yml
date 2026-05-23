@@ -24,7 +24,6 @@ jobs:
 
     - name: Handle Missing Environment Files
       run: |
-        # Создаем заглушку, чтобы проект не ругался при сборке
         touch .env.example
         touch .env
         if [ -d "app" ]; then
@@ -44,7 +43,8 @@ jobs:
         gradle-version: current
 
     - name: Build Debug APK
-      run: gradle assembleDebug --no-daemon
+      # Добавляем флаг headless для Java, чтобы KSP не падал в облаке
+      run: gradle assembleDebug --no-daemon -Djava.awt.headless=true
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4
@@ -53,3 +53,4 @@ jobs:
         path: |
           **/build/outputs/apk/debug/*.apk
           app/build/outputs/apk/debug/app-debug.apk
+          
