@@ -16,11 +16,20 @@ jobs:
     - name: Unzip Project Files
       run: |
         unzip bitpulse-btc-trading-bot.zip -d extracted_project
-        # Переносим файлы в корень репозитория, если они были внутри папки в архиве
         if [ -d "extracted_project/app" ]; then
           cp -r extracted_project/* .
         else
           cp -r extracted_project/*/* . 2>/dev/null || cp -r extracted_project/* .
+        fi
+
+    - name: Handle Missing Environment Files
+      run: |
+        # Создаем заглушку, чтобы проект не ругался при сборке
+        touch .env.example
+        touch .env
+        if [ -d "app" ]; then
+          touch app/.env.example 2>/dev/null || true
+          touch app/.env 2>/dev/null || true
         fi
 
     - name: Set up JDK 17
@@ -44,4 +53,3 @@ jobs:
         path: |
           **/build/outputs/apk/debug/*.apk
           app/build/outputs/apk/debug/app-debug.apk
-          
